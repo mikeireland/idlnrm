@@ -1,0 +1,50 @@
+;This script makes a log for printing etc from the fits headers with
+;all the useful information.
+dir = '/data/nirc2/080115/' &  outfile =  dir+'080115.txt'
+dir = '~/data/nirc2/141130/' &  outfile =  dir+'141130.txt'
+
+headitems =  ['FILTER', 'OBJECT','TARGNAME','CAMNAME', 'SHRNAME', $
+              'AX1', 'AX2', 'COADDS', 'SAMPMODE', 'MULTISAM', 'ITIME', 'UTC', 'EL']
+;SLIT, PMSNAME, ROTMODE,PARANG,SHRNAME, SLSNAME
+outformat =  '(a-16,'' '',a-16,a-16,a-10,a-10,a-5,a-5,a-5,a-3,a-4,a-9,a-12,a-10,a-10)'
+max_char =  95 ;;The maximum index in the above set of headers that indicates a 
+                    ;;change from one target/parameter set to the next 
+
+;; Depending on if files are gzipped or not, uncomment one of the following two lines.
+extn =  '.fits' & numstr =  8
+;extn =  '.fits.gz' & numstr =  11
+;------------------------------
+nh =  n_elements(headitems)
+files =  file_search(dir+'*'+extn)
+nf =  n_elements(files)
+harr =  strarr(nh, nf)
+strings =  strarr(nf)
+astring = ''
+openw,  1,  outfile,  width = 150
+printf,  1,  outfile
+printf, 1, 'FILES     ', string(headitems,  format = outformat)
+for i = 0, nf-1 do begin
+ dummy =  readfits(files[i], h)
+ harr[i] = ''
+ for j = 0,nh-1 do begin
+  a =  sxpar(h, headitems[j])
+  ;(size(a))[1] gives type of a
+  harr[j, i] += strtrim(a, 2);strmid(string(a), 0, len[j],  /reverse_offset)
+  if (headitems[j] eq 'AX1') then harr[j, i] = strtrim((size(dummy))[1], 2)
+  if (headitems[j] eq 'AX2') then harr[j, i] = strtrim((size(dummy))[2], 2)
+ endfor 
+ strings[i] =  string(harr[*, i],  format = outformat)
+ if (strmid(astring,0, max_char) ne strmid(strings[i], 0, max_char)) then begin
+   if (i ne 0) then begin
+    file2 = strmid(files[i-1], numstr,4,/rev)
+    printf,1,  file1+' '+string(round(1.0*file2)-round(1.0*file1)+1, format='(I04)')+' '+astring
+   endif
+   file1 = strmid(files[i], numstr,4,/rev)
+   astring =  strings[i]
+ endif
+endfor
+file2 = strmid(files[i-1], numstr,4,/rev)
+printf,1,  file1+' '+string(round(1.0*file2)-round(1.0*file1)+1, format='(I04)')+' '+astring
+close,  1
+
+end

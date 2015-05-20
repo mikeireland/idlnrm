@@ -1,0 +1,10 @@
+dir = '~/tel/nirc2/analysis/V1247Ori/L/'
+binary_grid, dir + 'V1247Ori_0162mrg.oifits', usevis=0, $
+ apriori={val:[42.75,306.6 - 180,123], err:[3.1,2,1e7]}, /nosim
+
+dir = '~/tel/nirc2/analysis/V1247Ori/H/'
+binary_grid, dir + 'V1247Ori_0062mrg.oifits', usevis=0, $
+ apriori={val:[42.75,306.6,123], err:[3.1,2,1e7]}, /nosim
+
+
+end
