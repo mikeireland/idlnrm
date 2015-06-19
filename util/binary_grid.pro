@@ -398,6 +398,8 @@ if (keyword_set(nosim) eq 0) then begin
   ;unitary = transpose(unitary)
  endif
  tp = transpose(proj)
+;;!!!ACR precalculate this because it takes ages and only has to be done once
+ precalc_dmmodcp = dm#modcp
  tbegin =  systime(1)
  for k = 0, nsim-1 do begin
      if (proj[0] ne -1) then begin
@@ -409,8 +411,12 @@ if (keyword_set(nosim) eq 0) then begin
          if (cp_cinv_null[0] eq -1) then t3sim.t3phi =  cperr_null*randomn(seed, nphi) $
          else t3sim.t3phi = unitary#diag#randomn(seed, nphi)
           ;;*** Are you MJI? If not you only care about the following line(4) *** 
-         crats = 1./reform(params[2, *, *])*reform(t3sim.t3phi#dm#modcp, nr, nang)/norm
-     endelse
+         crats  = 1./reform(params[2, *, *])*reform(t3sim.t3phi#precalc_dmmodcp, nr, nang)/norm
+         ;;!!!ACR CHANGE!!! precacl_dmmodcp is a pre_calcuated array
+         ;;that saves lots of time, see !!!ACR above
+         ;;The original version of the line pre !!!ACR
+         ;;crats = 1./reform(params[2, *, *])*reform(t3sim.t3phi#dm#modcp, nr, nang)/norm
+      endelse
      ;;The following formula is a crude correction for using this
      ;;high-contrast limit formula for low contrast and separation.
      ;;... we have to invert:

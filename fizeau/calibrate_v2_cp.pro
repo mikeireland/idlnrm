@@ -219,7 +219,7 @@ pro calibrate_v2_cp, cubeinfo_file,  root_dir=root_dir, reset = reset, apply_phs
                      skip_baseline_rejection = skip_baseline_rejection,  v2div = v2div, $
                      special=special, skip_cp_rejection = skip_cp_rejection, bsdir=bsdir, $
                      cal_cp_inspect=cal_cp_inspect, reject_lowv2=reject_lowv2, see_all=see_all,$
-                     freeze=freeze, disp_fit_file=disp_fit_file
+                     freeze=freeze, disp_fit_file=disp_fit_file,starlist=starlist
 
 ;; Now set the default root_dir if we can
 defsysv, '!ROOT_DIR', exists=exists
@@ -250,7 +250,7 @@ cubedates =  olog.cube_fname[*, 1]
 
 ; Add target names if necessary
 if keyword_set(add_names) then begin
-    fill_source_name, olog
+    fill_source_name, olog,starlist=starlist
 endif
 
 if (not keyword_set(linear_v2_cut)) then linear_v2_cut = 0
