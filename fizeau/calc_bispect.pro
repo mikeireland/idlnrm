@@ -321,7 +321,13 @@ for i=0, n_runs-1 do begin
     endif
     print, 'Doing Fourier Transforms for file: ',filename
     for k = 0, n_frames-1 do begin
+        currentexcept = !Except
+        !Except=0
+        void=Check_math()
         ft_cube[*,*,k] = fft(shift(cube[*,*,k], -dimx/2,  -dimy/2)*window, 1)
+        stats = check_math()
+        if (stats AND NOT 32) ne 0 then print, 'MATH CHECK ISSUE HERE ' + strtrim(stats,2) 
+        !except = currentexcept
         if (showps eq 1) then begin
             temp =  modsq(ft_cube[0, 0, k])/10.
             image_cont, shift(modsq(ft_cube[*,*,k]) < temp,dimx/2,dimy/2)^0.5, /noc
@@ -338,11 +344,16 @@ for i=0, n_runs-1 do begin
         ft_cube[0, 0, *] -= total(ft_dcube[0, 0, *])/float(n_dframes) ;As this is used for bias subtraction in bispect
     endif else dps = fltarr(dimx,dimy)
     print, 'Now calculating bispectrum...'
+    currentexcept = !Except
+    !Except=0
+    void=Check_math()
     bispect, ft_cube, mf_pvct, mf_gvct, mf_ix, mf_rmat, mf_imat, v2, v2_cov, bs,bs_var, bs_cov, bs_v2_cov, $
       bl2h_ix, bs2bl_ix,bl2bs_ix, bscov2bs_ix, cp_var, bs_all, v2_all, cvis_all, fluxes=fluxes, dark_ps=dps,n_blocks = n_blocks, cp_cov = cp_cov, $
       avar=avar, err_avar=err_avar, imsize = imsize, v2_arr=v2_arr, phs_v2corr = phs_v2corr,  $
       hole_phs = hole_phs,  hole_err_phs = hole_err_phs,hole_piston = hole_piston, subtract_bs_bias = subtract_bs_bias
-
+    stats = check_math()
+    if (stats AND NOT 32) ne 0 then print, 'MATH CHECK ISSUE HERE ' + strtrim(stats,2) 
+    !except = currentexcept
     !p.multi = [0,3,1]
     ; !p.multi = [0,2,1]
     in = indgen(n_baselines)

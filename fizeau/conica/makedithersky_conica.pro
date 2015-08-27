@@ -84,7 +84,7 @@ for i=0,nsky-1 do begin
   aframe =  dcube[*, *, i] 
   if (keyword_set(medsub)) then aframe -= medcube
   if(keyword_set(gain)) then aframe=aframe-gain*median(aframe)
-  temp = (smooth(aframe,nint(swidth),/edge))[swidth:dimx-swidth, swidth:dimy-swidth]
+  temp = (smooth(aframe,nint(swidth),/edge_truncate))[swidth:dimx-swidth, swidth:dimy-swidth]
   ;; Find the star (or first polarisation) on the chip
   mx1=max(temp,mxy1)
   mxy1 = array_indices(temp, mxy1)

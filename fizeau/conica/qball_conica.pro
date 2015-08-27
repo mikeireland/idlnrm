@@ -102,7 +102,8 @@ pro dataanalysis_init, queuejobs, manual, parent
   ; expand the updown term in qbeflags...
   qbeflags = (*m.qbeflags)[thisblock]
   loc = strpos(qbeflags, "updown")+7
-  udformat ="('['"+string(n_elements(frames),format="(I03)")+"(I1,:,','))"
+  udformat ="('['"+string(n_elements(frames),format="(I04)")+"(I1,:,','))"
+ ; stop
   expupdown = string(replicate(strmid(qbeflags, loc, 1),n_elements(frames)), format=udformat)+']'
   qbeflags =  strmid(qbeflags, 0, loc) + expupdown + strmid(qbeflags, loc+1, strlen(qbeflags))
   data_dir=dc.data_dir
@@ -726,7 +727,7 @@ pro newblock_ev, ev
 	          *m.bingridflags      = [*m.bingridflags,""]
           endelse
           for s=0, n_stars_thisclump-1 do begin 
-            zvect=intarr(100)
+            zvect=intarr(1000)
             flagvect=intarr(10)
             nstarfiles=m.filenumlimits[1,thisclump[s]]-m.filenumlimits[0,thisclump[s]]+1
             thisfilevect=indgen(nstarfiles) + m.filenumlimits[0,thisclump[s]]
@@ -2301,7 +2302,7 @@ if(dc.markup_sw eq 0) then begin
 	for i=0,n_files-1 do begin
 	  filename=file(i)
 	  head=headfits(filename)
-		 
+          print, file[i]
 	  for j=0,n_elements(s_par)-1 do s_output(j,i)=sxpar_conica(head,s_par(j))
 	  for j=0,n_elements(n_par)-1 do n_output(j,i)=sxpar_conica(head,n_par(j))
 
