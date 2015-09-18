@@ -51,7 +51,7 @@ olog={instrument:s,nax1:i,nax2:i,nax3:i,t_int:f,coadd:i,filter:s,		$ ; from head
       adate:'',comments:'',proc_hist:'',logflag:0,                  $ ; ..
       cal4src:intarr(n_cubes,n_cubes), quad:i,                      $ ; ..
       dk_fname:s,cube_fname:strarr(n_cubes,2),cube_tsize:f,         $ ; output this script
-      cube_sz:fltarr(n_cubes,3),  uflip:1.0, flat_file:strarr(1)}   	                                  ;
+      cube_sz:intarr(n_cubes,3),  uflip:1.0, flat_file:strarr(1)}   	                                  ;
 
 return,olog
 end

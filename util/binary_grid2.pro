@@ -13,7 +13,7 @@
 ;;  minsep: The resolution of the grid.
 pro binary_grid2,  infile,  init_crat=init_crat, boxsize=boxsize,like=like,x=x, extra_error=extra_error, chi2_arr=chi2_arr, $
   minsep=minsep, plot_chi2=plot_chi2, ps=ps, usevis=usevis, crat_upperlim = crat_upperlim, nsig=nsig, scale_to_null=scale_to_null, $
-  plotit=plotit, detection=detection, no_chi2_scaling=no_chi2_scaling, fits_out=fits_out, force_detection=force_detection
+  plotit=plotit, detection=detection, no_chi2_scaling=no_chi2_scaling, fits_out=fits_out, force_detection=force_detection, fix_crat=fix_crat
 
 if keyword_set(scale_to_null) and keyword_set(no_chi2_scaling) then begin
  print, "ERROR: You can't both scale_to_null and have no_chi2_scaling!"
@@ -86,7 +86,12 @@ for i =  0, nsep-1 do for j = 0, nsep-1 do begin
                           total(modelt3.t3phi^2/t3data.t3phierr^2)/init_crat
   crat_sigma[i,j] = sqrt( total(modelt3.t3phi^2*t3data.t3phierr^2/t3data.t3phierr^4)/$
   						  total(modelt3.t3phi^2/t3data.t3phierr^2)^2 ) / init_crat
-  modelt3.t3phi = modelt3.t3phi*crat_expectation[i,j]*init_crat                      
+  ;;If we're fixing contrast, then the model *is* the model that came straight from binary_t3data.
+  ;;If we're not fixing contrast, then scale the model closure phase by the fitted contrast.
+  ;;This is the linear approximation for closure-phase (only valid for moderate contrasts, e.g.
+  ;;10:1 or more.
+  if not keyword_set(fix_crat) then $
+     modelt3.t3phi = modelt3.t3phi*crat_expectation[i,j]*init_crat
   cpresid = mod360(modelt3.t3phi - t3data.t3phi)
   chi2_arr[i, j] =  total(cpresid^2/t3data.t3phierr^2) 
 endfor

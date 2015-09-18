@@ -95,8 +95,10 @@ case infostr.filter[ix] of
    else:stop
 endcase
 
+if (infostr.cube_sz[ix,0] eq 256) then special_sz='' else special_sz='_' + strtrim(fix(infostr.cube_sz[ix,0]),2)
+
 case paramname of
-  'template': return,  'nirc2/mf_' + maskname + '_' + filter + '.idlvar'
+  'template': return,  'nirc2/mf_' + maskname + '_' + filter + special_sz + '.idlvar'
   'clog': return,  make_clog(infostr)  ;For NIRC2, the defaults are fine.
   'n_blocks': return,  0
   'pscale' : return,  9.97 ;!!! Actually multiple scales...

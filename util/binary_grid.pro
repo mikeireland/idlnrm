@@ -1,20 +1,20 @@
 ;;This procedure does a binary grid search, outputting the detection
-;limits for a binary, as well as finding the best fitting binary.
-;printfile:   print results to a file instead of the screen.
-;usevis:      0 Don't use amplitudes.
-;             1 Use amplitudes 
-;             2 Use amplitudes after fitting for seeing and adding errors.
-;NB: -Common blocks can be reset with .reset_session
-; - Need a routine that finds the Hessian matrix inverse...
-;TODO:
-; - This script doesn't work for moderate contrast-ratio
-;   binaries. Needs fixing...?
-; - Use visibility to help constrain upper limits for near 1:1
-;   binaries at \lambda/2D. We can consider visibility amplitude to
-;   give an independent constraint on the contrast ratio. This is the
-;   same game: simulate V^2 data and fit to them. The catch is that
-;   since we're talking about the non-linear regime, we'll need
-;   non-linear fitting...
+;;limits for a binary, as well as finding the best fitting binary.
+;;printfile:   print results to a file instead of the screen.
+;;usevis:      0 Don't use amplitudes.
+;;             1 Use amplitudes 
+;;             2 Use amplitudes after fitting for seeing and adding errors.
+;;NB: -Common blocks can be reset with .reset_session
+;; - Need a routine that finds the Hessian matrix inverse...
+;;TODO:
+;; - This script doesn't work for moderate contrast-ratio
+;;   binaries. Needs fixing...?
+;; - Use visibility to help constrain upper limits for near 1:1
+;;   binaries at \lambda/2D. We can consider visibility amplitude to
+;;   give an independent constraint on the contrast ratio. This is the
+;;   same game: simulate V^2 data and fit to them. The catch is that
+;;   since we're talking about the non-linear regime, we'll need
+;;   non-linear fitting...
 
 ;;!!!NB !!! For the Upper Sco paper, the limits at wide separations
 ;;used the following hacks:
@@ -46,6 +46,8 @@ else print,  '********** Starting Binary fit. No save file **********'
 if not keyword_set(nsim) then nsim =long(10000) 
 if (keyword_set(init_crat) eq 0) then init_crat =  250
 if keyword_set(fix_crat) then init_crat = fix_crat
+
+
 extract_t3data,  file = infile,  t3data
 if (keyword_set(t3errscale)) then t3data.t3phierr *= t3errscale
 w = where(t3data.flag)
@@ -333,6 +335,7 @@ temp2 = apriori.err[2]
 apriori.err[2] = 1e5
 chi2_null =  binary_oifits_chi2(temp, sig = perror_null)
 apriori.err[2] = temp2
+
 print,  chi2_bin,                         format = '("Chi-squared (binary): ",F7.2)'
 if (p ne '') then printf,  1,  chi2_bin,  format = '("Chi-squared (binary): ",F7.2)'
 print,                  chi2_null,        format = '("Chi-squared (null):   ",F7.2)'

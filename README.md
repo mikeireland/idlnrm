@@ -7,3 +7,5 @@ In approximately 2004, several aperture-masking projects behind adaptive optics 
 
 This code has had many authors over the years, including Tom Evans, Michael Ireland, James Lloyd, Frantz Martinache, John Monnier, Paul Stewart and Peter Tuthill. There is no clear citation for the work, however the first papers to make serious use of the pipeline were probably: http://adsabs.harvard.edu/abs/2006ApJ...650L.131L (PHARO) http://adsabs.harvard.edu/abs/2008ApJ...679..762K (NIRC2) http://adsabs.harvard.edu/abs/2012ApJ...744..120E (CONICA)
 
+The code hopes to "play nice" with pynrm. This means that the output of data cleaning done through 
+e.g. clean_no_dither or clean_dither can be imported directly into idlnrm using olog_from_pynrm.pro.
