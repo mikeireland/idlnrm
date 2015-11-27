@@ -677,7 +677,7 @@ for asrc = 0, nsrc-1 do begin
         ;;!!! Don't think this works if nothing is clicked !!!
         good_baselines =  good_baselines[where(aquan.v2[good_baselines]-aquan.v2_err[good_baselines] gt 0)]
                                 ;window,1,xsize = screen_size[0]*0.9, ysize = screen_size[1]*.45 
-        ploterr, r[good_baselines], aquan.v2[good_baselines], aquan.v2_err[good_baselines], psym = 2, xrange = [0, max(r)], $
+        ploterr, [r[good_baselines]], [aquan.v2[good_baselines]], [aquan.v2_err[good_baselines]], psym = 2, xrange = [0, max(r)], $
           xtitle = 'Baseline (m)', ytitle = 'Vis Squared',  type = (1-linear_v2_cut)
         wait, 0.3
         cursor, x, y
