@@ -25,11 +25,12 @@ pro binary_grid,  infile,  printfile = printfile, no_bfinfo=no_bfinfo, usevis = 
  apriori = apriori_in,  proj = proj_in,  cor = cor,  covar = covar,  bestp = bestp,  perror = perror, scale_err=scale_err,$
  confidence_int = confidence_int, pa_keck9h=pa_keck9h, highc_only=highc_only, force_min_sep=force_min_sep0, $
  nsim=nsim, tom_this_doenst_work_for_nirc2=tom_this_doenst_work_for_nirc2, t3errscale=t3errscale, significance=significance, $
- redchi2=redchi2
+ redchi2=redchi2, max_snr=max_snr
 
 ;;Common block for fitting
 common t3block,  t3data,  apriori, vis2data, usevis,  cp_cinv,  proj, proj_err, force_min_sep
 
+if (keyword_set(max_snr) eq 0) then max_snr = 5.0
 if (keyword_set(usevis_in) eq 0) then usevis_in = 0
 usevis = usevis_in
 if (keyword_set(apriori_in) eq 0) then apriori_in = {val:[-1, -1, -1],  err:[0, 0, 0]}
@@ -73,7 +74,7 @@ target_name=oitarget.target
 target_name=target_name[0]
 
 ;Enforce a maximum SNR of 5.0 on visibility data.
-vis2data.vis2err = sqrt(vis2data.vis2err^2 + (vis2data.vis2data/5.0)^2)
+vis2data.vis2err = sqrt(vis2data.vis2err^2 + (vis2data.vis2data/max_snr)^2)
 
 
 ;;Find the number of rotations on the sky (i.e. independent cubes) by
