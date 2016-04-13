@@ -12,8 +12,9 @@
 ;;  x: An output vector giving the axes of the likelihood map in mas.
 ;;  minsep: The resolution of the grid.
 pro binary_grid2,  infile,  init_crat=init_crat, boxsize=boxsize,like=like,x=x, extra_error=extra_error, chi2_arr=chi2_arr, $
-  minsep=minsep, plot_chi2=plot_chi2, ps=ps, usevis=usevis, crat_upperlim = crat_upperlim, nsig=nsig, scale_to_null=scale_to_null, $
-  plotit=plotit, detection=detection, no_chi2_scaling=no_chi2_scaling, fits_out=fits_out, force_detection=force_detection
+                   minsep=minsep, plot_chi2=plot_chi2, ps=ps, usevis=usevis, crat_upperlim = crat_upperlim, nsig=nsig, scale_to_null=scale_to_null, $
+                   plotit=plotit, detection=detection, no_chi2_scaling=no_chi2_scaling, fits_out=fits_out, force_detection=force_detection, $
+                   clean_upperlims=clean_upperlims, oldschool_lims=oldschool_lims
 
 if keyword_set(scale_to_null) and keyword_set(no_chi2_scaling) then begin
  print, "ERROR: You can't both scale_to_null and have no_chi2_scaling!"
@@ -91,6 +92,8 @@ for i =  0, nsep-1 do for j = 0, nsep-1 do begin
   chi2_arr[i, j] =  total(cpresid^2/t3data.t3phierr^2) 
 endfor
 
+;;total(modelt3.t3phi*t3data.t3phi/t3phierr^2)/total(modelt3.t3phi^2/t3phierr^2)
+
 ;;Here we scale the error (sigma) values so that reduced chi-squared is 1.0
 ;;for either the null model (i.e. single star) or the best fit.
 if keyword_set(scale_to_null) then begin
@@ -109,6 +112,8 @@ if (det_sigma gt nsig or keyword_set(force_detection)) then begin
 endif else begin
  detection=[-1]
 endelse
+
+
 
 ;ndf =  n_elements(vis2data) -(n_elements(t3data)/float(n_elements(vis2data))*3.+1)
 ;;The likelihood map. !!! May have errors !!!
@@ -165,5 +170,64 @@ writefits, fits_out, crat_sigma, /append
 writefits, fits_out, scaled_chi2, /append
 
 endif
+
+;;!!!ACR addition
+;; If clean_upperlims set, and a detection is found, then remove the
+;; detection and recompute contrast upper limits or residuals.
+if keyword_set(clean_upperlims) and detection[0] ne -1 then begin
+   detpars       = [detection,0.1,0.1]
+   detpars[2]    = 1.0/detection[2]
+   detmodel      = binary_t3data(detpars,t3data=t3data)
+   t3data.t3phi -= detmodel.t3phi
+   crat_expectation_clean = crat_expectation
+   crat_sigma_clean       = crat_sigma
+   chi2_arr_clean         = chi2_arr*0.0
+   ;;following code identical to above gridsearch, but only computing
+   ;;crat_expectation and crat_sigma
+   for i =  0, nsep-1 do for j = 0, nsep-1 do begin
+      params  = [rho[i,j], theta[i,j], init_crat,0.1,0.1]
+      modelt3 = binary_t3data(params,t3data=t3data)
+      ;;This has to be a weighted
+      crat_expectation_clean[i,j] = total(modelt3.t3phi*t3data.t3phi/t3data.t3phierr^2)/$
+                              total(modelt3.t3phi^2/t3data.t3phierr^2)/init_crat
+      crat_sigma_clean[i,j] = sqrt( total(modelt3.t3phi^2*t3data.t3phierr^2/t3data.t3phierr^4)/$
+                              total(modelt3.t3phi^2/t3data.t3phierr^2)^2 ) / init_crat
+      
+      ;;the following three lines were for testing the model
+      ;;subraction.
+      ;;modelt3.t3phi        = modelt3.t3phi*crat_expectation_clean[i,j]*init_crat                      
+      ;;cpresid              = mod360(modelt3.t3phi - t3data.t3phi)
+      ;;chi2_arr_clean[i, j] =  total(cpresid^2/t3data.t3phierr^2) 
+   endfor
+   ;;detection removed so scale the errors (sigma) for the null model
+   crat_sigma_clean *= sqrt(chi2_null/ndf_ind)
+   crat_upperlim     = (crat_expectation_clean + nsig*crat_sigma_clean)<1.0
+   
+endif
+
+;;!!!ACR change
+;;If you want the limits to look like the olf  binary_grid e.g.:
+;;10-20, 20-40, 40-80,80-160, 160-240,240-320
+;;then set oldschool_lims to a names variable for output
+if keyword_set(oldschool_lims) then begin
+   sss   = sort(rho)
+   xxx   = rho[sss]
+   ccc   = -2.5*alog10(crat_upperlim[sss])
+   dummy = where(finite(ccc,/nan),complement = oks)
+   xxx   = xxx[oks]
+   ccc   = ccc[oks]
+;;now bin into separation regions
+   seps  = [10.,20.,40.,80.,160.,240.,320.]
+   mlims  = fltarr(n_elements(seps)-1)
+   for i=0,n_elements(seps)-2 do begin
+      qwe = where(xxx ge seps[i] and xxx lt seps[i+1])
+      if qwe[0] ne -1 then begin
+         mlims[i] = median(ccc[qwe])
+      endif 
+   endfor
+ ;;output separation bin left edge value and the limits
+   oldschool_lims = [[seps[0:5]],[mlims]]
+endif
+
 
 end
