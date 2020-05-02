@@ -15,11 +15,11 @@ GCIRC, 1, ra/15, dec, $
                   a.raj2000/15, a.dej2000, tsep
 mdist = min(tsep,  ix)
 
-stop
+;stop
 
 if (mdist gt max_dist) then begin
  print,  'No target within ',  strtrim(max_dist, 2),  ' arccsec!'
- stop
+ ;;stop
  return,  ''
 endif
 

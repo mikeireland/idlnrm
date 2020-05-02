@@ -43,12 +43,12 @@ for i=0,n_elements(cal4src[0,*])-1 do begin
      ; if i eq 9 then stop
       if spotu[0] gt -1 then begin
          sortu = sort(abs(adist[spotu]))
-         nearestu = ucals[sortu[0:npos-1]]
+         nearestu = ucals[sortu[0:npos-1<n_elements(sortu)-1]]
          cal4src[nearestu,i] = 1
       endif
       if spotl[0] gt -1 then begin
          sortl = sort(abs(adist[spotl]))
-         nearestl = lcals[sortl[0:npos-1]]
+         nearestl = lcals[sortl[0:npos-1<n_elements(sortl)-1]]
          cal4src[nearestl,i] = 1
       endif
      ;if i eq 9 then stop
